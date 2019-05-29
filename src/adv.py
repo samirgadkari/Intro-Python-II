@@ -45,15 +45,15 @@ room['treasure'].s_to = room['narrow']
 
 VALID_MOVES = ['n', 's', 'e', 'w']
 MOVE_PROMPT = f'Type in {",".join(VALID_MOVES)} to move'
-QUIT_PROMPT = ' or \'q\' to quit\''
+QUIT_PROMPT = ' or \'q\' to quit'
 INVALID_MOVE = f'Only {VALID_MOVES} are valid moves'
 DONE_MSG = 'Thank you for playing !!'
 
-room = room['outside']
-player = Player(room)
+player = Player(room['outside'])
 
 
-def move(room, direction):
+def move(player, direction):
+    room = player.current_room
     room_dir = {'n': room.n_to, 's': room.s_to, 'e': room.e_to, 'w': room.w_to}
     explicit_dir = {
         'n': 'north',
@@ -63,11 +63,10 @@ def move(room, direction):
     }[direction]
 
     next_room = room_dir[direction]
-    if next_room == None:
+    if next_room is None:
         print(f'\n  ERROR: No room to the {explicit_dir} of "{room.name}"\n')
-        return room
     else:
-        return next_room
+        player.current_room = next_room
 
 
 # Write a loop that:
@@ -82,8 +81,8 @@ def move(room, direction):
 # If the user enters "q", quit the game.
 
 while True:
-    print('Current room>', room)
-    cmd = input(MOVE_PROMPT + QUIT_PROMPT)
+    print('Current room>', player.current_room)
+    cmd = input(MOVE_PROMPT + QUIT_PROMPT + ': ')
 
     if cmd == 'q':
         print(DONE_MSG)
@@ -93,4 +92,4 @@ while True:
         print(INVALID_MOVE)
         continue
 
-    room = move(room, cmd)
+    move(player, cmd)
