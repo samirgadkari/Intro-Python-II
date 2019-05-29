@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms
 
@@ -46,10 +47,20 @@ room['treasure'].s_to = room['narrow']
 VALID_MOVES = ['n', 's', 'e', 'w']
 MOVE_PROMPT = f'Type in {",".join(VALID_MOVES)} to move'
 QUIT_PROMPT = ' or \'q\' to quit'
-INVALID_MOVE = f'Only {VALID_MOVES} are valid moves'
+VALID_ACTIONS = ['get', 'take', 'drop']
 DONE_MSG = 'Thank you for playing !!'
 
-player = Player(room['outside'])
+room = room['outside']
+items = [
+    Item('torch', 'midieval torch used to light your way'),
+    Item('gold', 'barter for anything your heart desires'),
+    Item('medicine', 'don\'t leave home without it'),
+    Item('food', 'good for long journeys')
+]
+for item in items:
+    room.add_item(item)
+
+player = Player(room)
 
 
 def move(player, direction):
@@ -69,6 +80,36 @@ def move(player, direction):
         player.current_room = next_room
 
 
+def update_items(player, action, item_name):
+    def move_item(from_loc, to_loc, item_name):
+
+        nonlocal player
+        item = None
+
+        for from_item in from_loc.get_items():
+            if from_item.name == item_name:
+                item = from_item
+                break
+        if item is None:
+            print('  Error: No such item')
+            return
+
+        from_loc.remove_item(item)
+        to_loc.add_item(item)
+
+        if player is from_loc:
+            item.on_drop()
+        elif player is to_loc:
+            item.on_take()
+
+        return
+
+    if (action == 'get') or (action == 'take'):
+        move_item(player.current_room, player, item_name)
+    elif action == 'drop':
+        move_item(player, player.current_room, item_name)
+
+
 # Write a loop that:
 #
 # * Prints the current room name
@@ -81,15 +122,24 @@ def move(player, direction):
 # If the user enters "q", quit the game.
 
 while True:
-    print('Current room>', player.current_room)
+    print('\nCurrent room>', player.current_room)
+    print('  Items in room: ',
+          [str(item) for item in player.current_room.get_items()])
+
     cmd = input(MOVE_PROMPT + QUIT_PROMPT + ': ')
+    if ' ' in cmd:
+        cmd_parts = cmd.split()
 
     if cmd == 'q':
         print(DONE_MSG)
         break
-
-    if cmd not in VALID_MOVES:
-        print(INVALID_MOVE)
-        continue
-
-    move(player, cmd)
+    elif (cmd == 'i') or (cmd == 'inventory'):
+        print('  Items with player: ',
+              [str(item) for item in player.get_items()])
+        print()
+    elif cmd in VALID_MOVES:
+        move(player, cmd)
+    elif cmd_parts[0] in VALID_ACTIONS:
+        update_items(player, cmd_parts[0], cmd_parts[1])
+    else:
+        print('  Error: Cannot understand command:', cmd)
