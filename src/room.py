@@ -8,7 +8,9 @@ WIDTH = 80
 class Room:
     def __init__(self, name, description):
         self.name = name
-        self.description = description
+
+        d = description.split()
+        self.description = ' '.join(d)
         self.n_to = None
         self.s_to = None
         self.e_to = None
@@ -16,8 +18,8 @@ class Room:
         self.items = []
 
     def __str__(self):
-        return textwrap.fill(textwrap.dedent(self.name + ':' + self.description + '.') \
-                             .strip(), width=WIDTH)
+        return '\n'.join(
+            textwrap.wrap(self.name + ': ' + self.description, width=WIDTH))
 
     def add_item(self, item):
         self.items.append(item)

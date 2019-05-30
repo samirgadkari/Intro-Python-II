@@ -1,7 +1,9 @@
 class Item:
-    def __init__(self, name, description):
+    def __init__(self, name, description, location, count):
         self.name = name
         self.description = description
+        self.location = location
+        self.count = count
 
     def __str__(self):
         return f'{self.name}'
