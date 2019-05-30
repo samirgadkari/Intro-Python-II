@@ -6,11 +6,12 @@ WIDTH = 80
 
 
 class Room:
-    def __init__(self, name, description):
+    def __init__(self, name, description, is_light=False):
         self.name = name
 
         d = description.split()
         self.description = ' '.join(d)
+        self.is_light = is_light
         self.n_to = None
         self.s_to = None
         self.e_to = None

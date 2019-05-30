@@ -29,9 +29,11 @@ class Adventure:
                 to north. The smell of gold permeates the air."""),
             'treasure':
             Room(
-                "Treasure Chamber", """You've found the long-lost treasure
+                "Treasure Chamber",
+                """You've found the long-lost treasure
                 chamber! Sadly, it has already been completely emptied by
-                earlier adventurers. The only exit is to the south."""),
+                earlier adventurers. The only exit is to the south.""",
+                is_light=True),
         }
 
         # Link rooms together
@@ -74,6 +76,12 @@ class Adventure:
         #
         # If the user enters "q", quit the game.
 
+        def room_is_lit():
+            nonlocal self
+            return self.player.current_room.is_light or \
+                self.items.item_in_loc_has_light(self.player.current_room) or \
+                self.items.item_in_loc_has_light(self.player)
+
         VALID_MOVES = ['n', 's', 'e', 'w']
         MOVE_PROMPT = f'Type in {",".join(VALID_MOVES)} to move'
         QUIT_PROMPT = ' or \'q\' to quit'
@@ -82,9 +90,13 @@ class Adventure:
 
         while True:
             print('\nCurrent room>', self.player.current_room)
-            print('  Items in room: ',
-                  [(str(item.name) + ' (' + str(item.count) + ')')
-                   for item in self.items.get_items(self.player.current_room)])
+            if room_is_lit():
+                print('  Items in room: ', [
+                    (str(item.name) + ' (' + str(item.count) + ')')
+                    for item in self.items.get_items(self.player.current_room)
+                ])
+            else:
+                print('It\'s pitch black!')
 
             cmd = input(MOVE_PROMPT + QUIT_PROMPT + ': ')
             if ' ' in cmd:
